@@ -67,6 +67,9 @@
             # Import user configuration / ユーザー設定をインポート
             home-manager.users.${var.user.name} = import ./home.nix;
             
+            # Backup existing files / 既存ファイルのバックアップ
+            home-manager.backupFileExtension = "backup";
+
             # Pass variables to Home Manager / Home Managerにも変数を渡す
             home-manager.extraSpecialArgs = { inherit inputs var; };
           }
