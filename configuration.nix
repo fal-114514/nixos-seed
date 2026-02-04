@@ -30,6 +30,8 @@ in
   # ===========================================================================
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Early load graphics driver for VirtualBox / VirtualBox用のグラフィックスドライバを早期読み込み
+  boot.initrd.kernelModules = [ "vmwgfx" ];
 
   # ===========================================================================
   # Network Configuration / ネットワーク設定
@@ -125,13 +127,16 @@ in
   # ---------------------------------------------------------------------------
 
   # GDM (Gnome Display Manager) / GDM（Gnomeディスプレイマネージャー）
-  services.xserver.displayManager.gdm.enable = (var.desktop.displayManager == "gdm");
+  services.displayManager.gdm.enable = (var.desktop.displayManager == "gdm");
 
   # SDDM (Simple Desktop Display Manager) / SDDM
   services.displayManager.sddm.enable = (var.desktop.displayManager == "sddm");
 
   # Lemurs (Terminal Login Manager) / Lemurs（ターミナルログインマネージャー）
   services.displayManager.lemurs.enable = (var.desktop.displayManager == "lemurs");
+  services.displayManager.lemurs.settings = {
+    wayland_sessions_path = "/run/current-system/sw/share/wayland-sessions";
+  };
 
   # ReGreet (GTK based Greeter) / ReGreet（GTKベースのグリーター）
   programs.regreet.enable = (var.desktop.displayManager == "regreet");
@@ -146,10 +151,10 @@ in
           if var.desktop.displayManager == "regreet" then
             "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.regreet}/bin/regreet"
           else if var.desktop.displayManager == "tuigreet" then
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd niri-session"
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions /run/current-system/sw/share/wayland-sessions"
           else
             # Fallback
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd niri-session";
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions /run/current-system/sw/share/wayland-sessions";
         user = "greeter";
       };
     };
@@ -169,7 +174,7 @@ in
   };
 
   # Gnome Desktop / Gnomeデスクトップ
-  services.xserver.desktopManager.gnome.enable = var.desktop.enableGnome;
+  services.desktopManager.gnome.enable = var.desktop.enableGnome;
 
   # Niri (Window Manager) / Niri（ウィンドウマネージャー）
   programs.niri.enable = var.desktop.enableNiri;
@@ -218,6 +223,7 @@ in
 
   # Virtualization / 仮想化
   virtualisation.libvirtd.enable = true;
+  virtualisation.virtualbox.guest.enable = true;
 
   # Binary compatibility / バイナリ互換性
   programs.nix-ld.enable = true;
