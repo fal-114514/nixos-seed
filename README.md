@@ -18,6 +18,7 @@
   - [カスタマイズ例 / Customization Examples](#カスタマイズ例--customization-examples)
     - [SSHポートの変更](#sshポートの変更)
     - [デスクトップ環境の切り替え](#デスクトップ環境の切り替え)
+  - [開発について / About Development](#開発について--about-development)
   - [ライセンス / License](#ライセンス--license)
 
 ## ディレクトリ構造 / Directory Structure
@@ -55,7 +56,7 @@ starter/
     - 例: `services.openssh.ports = [ var.network.sshPort ];`
 
 4.  **`home.nix`** (Home Manager):
-    - ユーザー権限でインストールするアプリやツールの設定（Git、ターミナル、エディタなど）を行います。
+    - ユーザー権限でインストールするアプリやツールの設定（Git、ターミナル、エディターなど）を行います。
     - `DE/` ディレクトリ内のモジュールをインポートしており、`variables.nix` の設定に応じて特定のデスクトップ環境の設定を有効化します。
 
 5.  **`DE/` (Desktop Environments)**:
@@ -92,7 +93,7 @@ nixos-generate-config --show-hardware-config > hardware-configuration.nix
 - `user.name`: ユーザー名
 - `system.hostname`: ホスト名
 - `desktop.enableGnome`: デスクトップ環境の選択
-- `network.sshPort`: SSHポート番号 など
+- `network.sshPort`: SSHポート番号など
 
 ```nix
 # variables.nix の例
@@ -159,6 +160,11 @@ sudo nixos-rebuild switch --flake .#nixos-desktop
     # ...
   };
 ```
+
+## 開発について / About Development
+
+このリポジトリは、私が NixOS の学習と環境構築の効率化を目的にAIを使用し作成した「実験場」です。  
+あくまで個人用設定の公開であるため、汎用的な動作保証はしていません。利用される際は、内容を理解した上で自己責任での使用をお願いします。
 
 ## ライセンス / License
 
