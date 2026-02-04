@@ -125,7 +125,7 @@ in
   # ---------------------------------------------------------------------------
 
   # GDM (Gnome Display Manager) / GDM（Gnomeディスプレイマネージャー）
-  services.xserver.displayManager.gdm.enable = (var.desktop.displayManager == "gdm");
+  services.displayManager.gdm.enable = (var.desktop.displayManager == "gdm");
 
   # SDDM (Simple Desktop Display Manager) / SDDM
   services.displayManager.sddm.enable = (var.desktop.displayManager == "sddm");
@@ -146,10 +146,10 @@ in
           if var.desktop.displayManager == "regreet" then
             "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.regreet}/bin/regreet"
           else if var.desktop.displayManager == "tuigreet" then
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd niri-session"
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${pkgs.niri}/share/wayland-sessions:${pkgs.gnome-session}/share/wayland-sessions"
           else
             # Fallback
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd niri-session";
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${pkgs.niri}/share/wayland-sessions:${pkgs.gnome-session}/share/wayland-sessions";
         user = "greeter";
       };
     };
@@ -169,7 +169,7 @@ in
   };
 
   # Gnome Desktop / Gnomeデスクトップ
-  services.xserver.desktopManager.gnome.enable = var.desktop.enableGnome;
+  services.displayManager.gnome.enable = var.desktop.enableGnome;
 
   # Niri (Window Manager) / Niri（ウィンドウマネージャー）
   programs.niri.enable = var.desktop.enableNiri;
@@ -229,4 +229,16 @@ in
   
   # Experimental features / 実験的機能
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Lemurs Session Scripts / Lemursセッションスクリプト
+  environment.etc = {
+    "lemurs/wayland/Niri".text = ''
+      #!${pkgs.bash}/bin/bash
+      exec niri-session
+    '';
+    "lemurs/wayland/Gnome".text = ''
+      #!${pkgs.bash}/bin/bash
+      exec gnome-session
+    '';
+  };
 }
