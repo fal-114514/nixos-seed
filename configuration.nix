@@ -132,6 +132,10 @@ in
 
   # Lemurs (Terminal Login Manager) / Lemurs（ターミナルログインマネージャー）
   services.displayManager.lemurs.enable = (var.desktop.displayManager == "lemurs");
+  services.displayManager.lemurs.settings = {
+    wayland_sessions_path = "/etc/lemurs/wayland";
+  };
+   
 
   # ReGreet (GTK based Greeter) / ReGreet（GTKベースのグリーター）
   programs.regreet.enable = (var.desktop.displayManager == "regreet");
@@ -146,10 +150,10 @@ in
           if var.desktop.displayManager == "regreet" then
             "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.regreet}/bin/regreet"
           else if var.desktop.displayManager == "tuigreet" then
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${pkgs.niri}/share/wayland-sessions:${pkgs.gnome-session}/share/wayland-sessions"
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions /run/current-system/sw/share/wayland-sessions"
           else
             # Fallback
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${pkgs.niri}/share/wayland-sessions:${pkgs.gnome-session}/share/wayland-sessions";
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions /run/current-system/sw/share/wayland-sessions";
         user = "greeter";
       };
     };
@@ -232,13 +236,19 @@ in
 
   # Lemurs Session Scripts / Lemursセッションスクリプト
   environment.etc = {
-    "lemurs/wayland/Niri".text = ''
-      #!${pkgs.bash}/bin/bash
-      exec niri-session
-    '';
-    "lemurs/wayland/Gnome".text = ''
-      #!${pkgs.bash}/bin/bash
-      exec gnome-session
-    '';
+    "lemurs/wayland/Niri" = {
+      mode = "0755";
+      text = ''
+        #!${pkgs.bash}/bin/bash
+        exec niri-session
+      '';
+    };
+    "lemurs/wayland/Gnome" = {
+      mode = "0755";
+      text = ''
+        #!${pkgs.bash}/bin/bash
+        exec gnome-session
+      '';
+    };
   };
 }
