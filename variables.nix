@@ -64,7 +64,7 @@
     # オプション: "regreet", "tuigreet", "gdm", "sddm", "lemurs"
     # Note: "regreet" may have issues in some VMs. Use "tuigreet", "gdm", or "lemurs" for stability.
     # 注意: "regreet"は一部のVMで問題が発生する可能性があります。安定性のために"tuigreet"、"gdm"、または"lemurs"を使用してください。
-    displayManager = "lemurs";
+    displayManager = "tuigreet";
   };
 
   # ---------------------------------------------------------------------------
