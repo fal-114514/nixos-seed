@@ -169,7 +169,7 @@ in
   };
 
   # Gnome Desktop / Gnomeデスクトップ
-  services.displayManager.gnome.enable = var.desktop.enableGnome;
+  services.desktopManager.gnome.enable = var.desktop.enableGnome;
 
   # Niri (Window Manager) / Niri（ウィンドウマネージャー）
   programs.niri.enable = var.desktop.enableNiri;
