@@ -231,5 +231,16 @@ in
   system.stateVersion = var.system.stateVersion;
   
   # Experimental features / 実験的機能
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  # Nix settings / Nix設定
+  nix = {
+    settings = {
+      experimental-features = [ "nix-command" "flakes" ];
+      auto-optimise-store = true;
+    };
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
+  };
 }
