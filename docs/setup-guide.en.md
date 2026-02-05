@@ -7,8 +7,8 @@ This guide provides detailed instructions on how to set up NixOS using this star
 Clone this repository to your local machine.
 
 ```bash
-git clone <repository_url> nixos-config
-cd nixos-config/starter
+git clone https://github.com/fal-114514/nixos-seed.git nixos-config
+cd nixos-config
 ```
 
 ## 2. Understanding the Directory Structure

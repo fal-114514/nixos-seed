@@ -1,4 +1,4 @@
-# NixOS Configuration Architecture (Technical Specification)
+# NixOS Configuration Architecture (Infrastructure & Design)
 
 ## 1. ディレクトリ構造とコンポーネント定義
 
