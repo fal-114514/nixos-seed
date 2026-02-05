@@ -1,12 +1,5 @@
 { pkgs, lib, var, ... }:
 
-with lib;
-
-let
-  cfg = var.desktop;
-in
-mkIf (builtins.hasAttr "enableKde" cfg && cfg.enableKde) {
-  imports = [
-    cfg.kdeConfigPath
-  ];
+{
+  imports = lib.optional (builtins.hasAttr "enableKde" var.desktop && var.desktop.enableKde) var.desktop.kdeConfigPath;
 }
