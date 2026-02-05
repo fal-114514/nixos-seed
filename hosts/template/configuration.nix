@@ -10,7 +10,7 @@
 let
   # Helper function to get shell package from string
   # 文字列からシェルパッケージを取得するヘルパー関数
-  getShell = shellStr: 
+  getShell = shellStr:
     if shellStr == "pkgs.bash" then pkgs.bash
     else if shellStr == "pkgs.zsh" then pkgs.zsh
     else if shellStr == "pkgs.fish" then pkgs.fish
@@ -23,6 +23,8 @@ in
       # If you haven't generated it yet, run 'nixos-generate-config'
       # まだ生成していない場合は、'nixos-generate-config'を実行してください
       ./hardware-configuration.nix
+      # Include host-local and shared modules / ホスト固有および共有モジュールを含める
+      ./modules
     ];
 
   # ===========================================================================

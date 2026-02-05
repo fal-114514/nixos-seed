@@ -46,6 +46,7 @@
 
 - [**セットアップガイド (日本語)**](./docs/setup-guide.ja.md)
 - [**Setup Guide (English)**](./docs/setup-guide.en.md)
+- [**構造説明書 (仕組みの解説)**](./docs/architecture.ja.md)
 
 ### クイックスタート (既設ホストの適用)
 

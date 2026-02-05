@@ -23,6 +23,8 @@ in
       # If you haven't generated it yet, run 'nixos-generate-config'
       # まだ生成していない場合は、'nixos-generate-config'を実行してください
       ./hardware-configuration.nix
+      # Include host-local and shared modules / ホスト固有および共有モジュールを含める
+      ./modules
     ];
 
   # ===========================================================================

@@ -100,4 +100,12 @@
     enable = true;
     type = "fcitx5";
   };
+  # ---------------------------------------------------------------------------
+  # Custom Service Configuration (Example) / カスタムサービス設定（例）
+  # ---------------------------------------------------------------------------
+  # 新しいモジュール（例: modules/examples/service-template.nix）を追加した場合は、
+  # 以下のように有効化フラグやパラメーターを定義します。
+  # example-service = {
+  #   enableExample = true;
+  # };
 }
