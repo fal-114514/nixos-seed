@@ -7,6 +7,7 @@
 
 - [NixOS Starter Configuration](#nixos-starter-configuration)
   - [目次 / Table of Contents](#目次--table-of-contents)
+  - [Branch Guide / ブランチ構成](#branch-guide--ブランチ構成)
   - [ディレクトリ構造 / Directory Structure](#ディレクトリ構造--directory-structure)
   - [仕組み / Mechanism](#仕組み--mechanism)
   - [セットアップ手順 / Getting Started](#セットアップ手順--getting-started)
@@ -20,6 +21,19 @@
     - [デスクトップ環境の切り替え](#デスクトップ環境の切り替え)
   - [開発について / About Development](#開発について--about-development)
   - [ライセンス / License](#ライセンス--license)
+
+## Branch Guide / ブランチ構成
+
+- [mainブランチ](../../tree/main): デフォルトブランチ
+  - NixOSの設定に馴染みがない方向け
+  - 安定版
+  - フラットな構造
+- [testブランチ](../../tree/test): テスト兼玄人向けブランチ
+  - 新機能のテスト
+  - 玄人向け
+> [!CAUTION]
+> testブランチは作者自身ですら完璧に理解できていません。
+> 初めて設定を触るよー、って方にはmainブランチを推奨します。
 
 ## ディレクトリ構造 / Directory Structure
 
