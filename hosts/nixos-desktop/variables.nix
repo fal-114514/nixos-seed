@@ -55,15 +55,15 @@
   desktop = {
     # Enable Gnome (Default for beginners) / Gnomeを有効化（初心者向けデフォルト）
     enableGnome = true;
-    gnomeConfigPath = ./config/gnome/default.nix;
+    gnomeConfigPath = ./config/DE/gnome/default.nix;
 
     # Enable Niri (Tiling WM) / Niriを有効化（タイル型WM）
     enableNiri = true;
-    niriConfigPath = ./config/niri/config.kdl;
+    niriConfigPath = ./config/DE/niri/config.kdl;
 
     # Enable KDE Plasma / KDE Plasmaを有効化
     enableKde = false;
-    kdeConfigPath = ./config/kde/default.nix;
+    kdeConfigPath = ./config/DE/kde/default.nix;
 
     # Login Manager / ログインマネージャー
     # Options: "regreet", "tuigreet", "gdm", "sddm", "lemurs"
