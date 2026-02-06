@@ -188,7 +188,7 @@ in
   # SSH AskPassword の競合を解決（Gnome と KDE の両方が有効な場合）
   # Gnome の seahorse を優先し、KDE 単独の場合は ksshaskpass を使用
   programs.ssh.askPassword = lib.mkIf (var.desktop.enableGnome && var.desktop.enableKde)
-    (lib.mkForce "${pkgs.seahorse}/libexec/seahorse/ssh-askpass");
+    (lib.mkForce "${pkgs.gnome-keyring}/libexec/seahorse/ssh-askpass");
 
   # Niri (Window Manager) / Niri（ウィンドウマネージャー）
   programs.niri.enable = var.desktop.enableNiri;
