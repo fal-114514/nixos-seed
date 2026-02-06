@@ -72,6 +72,11 @@ in
   # Time Zone / タイムゾーン
   time.timeZone = var.system.timeZone;
 
+  services.xserver.xkb = {
+    layout = "us";
+    variant = "";
+  };
+
   # Locale / ロケール
   i18n = {
     defaultLocale = var.system.defaultLocale;
