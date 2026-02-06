@@ -5,7 +5,7 @@
 # これはメインのシステム設定ファイルです。
 # =============================================================================
 
-{ config, pkgs, var, ... }:
+{ config, pkgs, var, lib, ... }:
 
 let
   # Helper function to get shell package from string
