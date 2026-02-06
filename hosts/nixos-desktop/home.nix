@@ -33,7 +33,7 @@
 
   # GNOME: 日本語入力（IBus Mozc）を入力ソースに追加（必須）
   # 設定しないと「キーボードの入力ソース」に日本語が表示されず変換できない
-  dconf.settings = lib.mkIf var.desktop.enableGnome {
+  dconf.settings = lib.mkIf (var.desktop.enableGnome && var.inputMethod.type == "ibus") {
     "org/gnome/desktop/input-sources" = {
       sources = [
         (lib.hm.gvariant.mkTuple [ "xkb" "jp" ])
@@ -43,7 +43,7 @@
   };
 
   # IBus デーモンの自動起動（GNOME で日本語入力を有効にするために必須）
-  systemd.user.services.ibus-daemon = lib.mkIf var.desktop.enableGnome {
+  systemd.user.services.ibus-daemon = lib.mkIf (var.desktop.enableGnome && var.inputMethod.type == "ibus") {
     Unit = {
       Description = "IBus Daemon";
       After = [ "graphical-session-pre.target" ];
