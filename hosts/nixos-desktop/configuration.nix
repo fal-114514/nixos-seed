@@ -102,8 +102,20 @@ in
       fcitx5.addons = lib.mkIf (var.inputMethod.type == "fcitx5") (with pkgs; [
         fcitx5-mozc
         fcitx5-gtk
+        fcitx5-qt   # KDE/Qt アプリで日本語入力に必須（ないと Ctrl+Space で「日本語」表示でも英語のままになる）
       ]);
       fcitx5.waylandFrontend = (var.inputMethod.type == "fcitx5");
+      # デフォルトを Mozc（日本語）にし、レイアウトを jp に（「日本語」選択時に実際に変換できるようにする）
+      fcitx5.settings.inputMethod = lib.mkIf (var.inputMethod.type == "fcitx5") {
+        "GroupOrder" = { "0" = "Default"; };
+        "Groups/0" = {
+          Name = "Default";
+          "Default Layout" = "jp";
+          DefaultIM = "mozc";
+        };
+        "Groups/0/Items/0" = { Name = "keyboard-jp"; };
+        "Groups/0/Items/1" = { Name = "mozc"; };
+      };
     };
   };
 
@@ -208,13 +220,9 @@ in
                           else if var.desktop.enableGnome then "gnome"
                           else if var.desktop.enableKde then "kde"
                           else "sway"; # Fallback
-    # Input Method
-    # Wayland native applications should not use IM_MODULE variables.
-    # WaylandネイティブアプリはIM_MODULE変数を使用すべきではありません。
-    # Fcitx5 handles Wayland via the waylandFrontend option.
-    # Fcitx5はwaylandFrontendオプションでWaylandを処理します。
-    GTK_IM_MODULE = lib.mkIf (var.inputMethod.type == "ibus") "ibus";
-    QT_IM_MODULE = lib.mkIf (var.inputMethod.type == "ibus") "ibus";
+    # Input Method（Qt/GTK アプリが IM を使うために必要。KDE で「日本語」選択時に英語のままになるのはこれが未設定のため）
+    GTK_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
+    QT_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
     XMODIFIERS = if var.inputMethod.type == "fcitx5" then "@im=fcitx" else "@im=ibus";
 
     # IBus の場合、デーモンアドレスを設定
