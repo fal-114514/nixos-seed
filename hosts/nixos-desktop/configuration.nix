@@ -202,6 +202,7 @@ in
     XDG_SESSION_DESKTOP = if var.desktop.enableNiri then "niri"
                           else if var.desktop.enableGnome then "gnome"
                           else if var.desktop.enableKde then "kde"
+                          else "sway"; # Fallback
     # Input Method
     # Wayland native applications should not use IM_MODULE variables.
     # WaylandネイティブアプリはIM_MODULE変数を使用すべきではありません。
