@@ -88,8 +88,8 @@ in
     };
 
     # Input Method (Japanese) / 入力メソッド（日本語）
-    # NixOS は i18n.inputMethod で fcitx5 を有効化する（inputMethod だけでは無効）
-    i18n.inputMethod = {
+    # このブロックは i18n = { ... } 内のため、inputMethod で i18n.inputMethod になる
+    inputMethod = {
       enable = var.inputMethod.enable;
       type = var.inputMethod.type;
       fcitx5.addons = with pkgs; [
