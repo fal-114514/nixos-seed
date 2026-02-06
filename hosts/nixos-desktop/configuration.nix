@@ -242,7 +242,7 @@ in
     adwaita-icon-theme # For ReGreet
 
     # Input Method Tools / 入力メソッドツール
-    fcitx5-configtool # For Fcitx5 configuration GUI
+    qt6Packages.fcitx5-configtool # For Fcitx5 configuration GUI
   ];
 
   # Flatpak support / Flatpakサポート
