@@ -128,8 +128,8 @@ in
   # Desktop Environment / デスクトップ環境
   # ===========================================================================
 
-  # Enable XServer (Required for Gnome, etc.) / XServerを有効化（Gnome等に必要）
-  services.xserver.enable = var.desktop.enableGnome;
+  # Enable XServer (Required for Gnome, KDE, etc.) / XServerを有効化（Gnome、KDE等に必要）
+  services.xserver.enable = var.desktop.enableGnome || var.desktop.enableKde;
 
   # ---------------------------------------------------------------------------
   # Login Manager / ログインマネージャー
@@ -157,10 +157,10 @@ in
           if var.desktop.displayManager == "regreet" then
             "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.regreet}/bin/regreet"
           else if var.desktop.displayManager == "tuigreet" then
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions:${config.services.displayManager.sessionData.desktops}/share/xsessions"
           else
             # Fallback
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
+            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions:${config.services.displayManager.sessionData.desktops}/share/xsessions";
         user = "greeter";
       };
     };
@@ -181,6 +181,14 @@ in
 
   # Gnome Desktop / Gnomeデスクトップ
   services.desktopManager.gnome.enable = var.desktop.enableGnome;
+
+  # KDE Plasma Desktop / KDE Plasmaデスクトップ
+  services.desktopManager.plasma6.enable = var.desktop.enableKde;
+
+  # SSH AskPassword の競合を解決（Gnome と KDE の両方が有効な場合）
+  # Gnome の seahorse を優先し、KDE 単独の場合は ksshaskpass を使用
+  programs.ssh.askPassword = lib.mkIf (var.desktop.enableGnome && var.desktop.enableKde)
+    (lib.mkForce "${pkgs.seahorse}/libexec/seahorse/ssh-askpass");
 
   # Niri (Window Manager) / Niri（ウィンドウマネージャー）
   programs.niri.enable = var.desktop.enableNiri;
@@ -203,6 +211,8 @@ in
     GTK_IM_MODULE = if var.desktop.enableGnome then "ibus" else "fcitx";
     QT_IM_MODULE = if var.desktop.enableGnome then "ibus" else "fcitx";
     XMODIFIERS = if var.desktop.enableGnome then "@im=ibus" else "@im=fcitx";
+    # IBus の場合、デーモンアドレスを設定
+    IBUS_DAEMON_ADDRESS = if var.desktop.enableGnome then "unix:path=/run/user/1000/ibus/ibus-daemon" else "";
   };
 
   # ===========================================================================
