@@ -24,14 +24,31 @@
 │   │   ├── variables.nix   # ホスト別変数設定
 │   │   ├── configuration.nix
 │   │   ├── home.nix
-│   │   └── config/         # アプリ別の設定ファイル (Niri等)
-│   └── template/           # 新規作成用テンプレート
+│   │   ├── config/         # アプリ別の設定ファイル
+│   │   │   └── DE/         # デスクトップ環境別設定 (Niri等)
+│   │   └── modules/        # ホスト固有モジュール
+│   │       └── default.nix
+│   └── template/           # 新規ホスト作成用テンプレート
+│       ├── variables.nix
+│       ├── configuration.nix
+│       ├── home.nix
+│       ├── config/
+│       │   └── DE/
+│       └── modules/
+│           └── default.nix
 ├── modules/                # 共有モジュール / Shared modules
 │   ├── default.nix         # モジュール集約ファイル
-│   └── DE/                 # デスクトップ環境 (GNOME, KDE, Niri)
+│   ├── home.nix            # 共有Home Manager設定
+│   ├── DE/                 # デスクトップ環境 (GNOME, KDE, Niri)
+│   │   ├── gnome/
+│   │   ├── kde/
+│   │   └── niri/
+│   └── examples/           # モジュールテンプレート例
+│       └── service-template.nix
 └── docs/                   # ドキュメント / Documentation
     ├── setup-guide.ja.md   # セットアップガイド (日本語)
-    └── setup-guide.en.md   # Setup Guide (English)
+    ├── setup-guide.en.md   # Setup Guide (English)
+    └── architecture.ja.md  # 構成説明書 (日本語)
 ```
 
 ## 仕組み / Mechanism
@@ -39,6 +56,9 @@
 1.  **マルチホスト**: `hosts/` ディレクトリ配下にマシンごとの設定を完全に分離して配置します。
 2.  **共有モジュール**: デスクトップ環境のパッケージ構成や基本的なリンク処理は `modules/` で一元管理され、各ホストから必要に応じて読み込まれます。
 3.  **変数の活用**: 各ホストの `variables.nix` で、ユーザー名、ホスト名、有効にするDE、設定ファイルのパスなどを一括管理します。
+4.  **ホスト固有モジュール**: 各ホストは `modules/default.nix` を持ち、ホスト固有の追加モジュールを定義できます。
+
+詳細な構造と仕組みについては、[**構成説明書 (日本語)**](./docs/architecture.ja.md) を参照してください。
 
 ## セットアップ手順 / Getting Started
 
@@ -46,7 +66,6 @@
 
 - [**セットアップガイド (日本語)**](./docs/setup-guide.ja.md)
 - [**Setup Guide (English)**](./docs/setup-guide.en.md)
-- [**構成説明書 (構造と仕組み)**](./docs/architecture.ja.md)
 
 ### クイックスタート (既設ホストの適用)
 
