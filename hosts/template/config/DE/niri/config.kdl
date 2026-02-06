@@ -3,6 +3,9 @@
 // Niri設定ファイル
 // 必要に応じて設定を変更してください。
 
+// 日本語入力 (fcitx5-mozc) を起動（WM では XDG autostart に依存しないため明示的に起動）
+spawn-at-startup "fcitx5" "-d"
+
 input {
     keyboard {
         xkb {

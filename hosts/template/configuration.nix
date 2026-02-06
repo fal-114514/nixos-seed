@@ -88,12 +88,15 @@ in
     };
 
     # Input Method (Japanese) / 入力メソッド（日本語）
-    inputMethod = {
+    # NixOS は i18n.inputMethod で fcitx5 を有効化する（inputMethod だけでは無効）
+    i18n.inputMethod = {
       enable = var.inputMethod.enable;
       type = var.inputMethod.type;
       fcitx5.addons = with pkgs; [
         fcitx5-mozc
+        fcitx5-gtk   # GTK アプリ用
       ];
+      fcitx5.waylandFrontend = true;  # Wayland で日本語入力するために必要
     };
   };
 
