@@ -23,6 +23,10 @@ in
       # If you haven't generated it yet, run 'nixos-generate-config'
       # まだ生成していない場合は、'nixos-generate-config'を実行してください
       ./hardware-configuration.nix
+      # Include desktop environment modules / デスクトップ環境モジュールを含める
+      ./DE/gnome/nixos.nix
+      ./DE/kde/nixos.nix
+      ./DE/niri/nixos.nix
     ];
 
   # ===========================================================================
@@ -44,7 +48,6 @@ in
   # Network Manager / ネットワーク管理
   networking.networkmanager.enable = var.network.enableNetworkManager;
 
-  # SSH Configuration / SSH設定
   # SSH Configuration / SSH設定
   services.openssh = {
     enable = var.network.enableSSH;
@@ -70,6 +73,10 @@ in
 
   # Time Zone / タイムゾーン
   time.timeZone = var.system.timeZone;
+
+  # Set hardware clock to local time (for dual-boot with Windows)
+  # ハードウェアクロックをローカルタイムに設定（Windowsとのデュアルブート用）
+  time.hardwareClockInLocalTime = true;
 
   # Locale / ロケール
   i18n = {
@@ -140,9 +147,8 @@ in
   # Desktop Environment / デスクトップ環境
   # ===========================================================================
 
-  # Enable XServer (Required for Gnome) / XServerを有効化（Gnomeに必要）
-  # Enable XServer (Required for Gnome, etc.) / XServerを有効化（Gnome等に必要）
-  services.xserver.enable = var.desktop.enableGnome;
+  # Enable XServer (Required for Gnome, KDE, etc.) / XServerを有効化（Gnome、KDE等に必要）
+  services.xserver.enable = var.desktop.enableGnome || var.desktop.enableKde;
 
   # ---------------------------------------------------------------------------
   # Login Manager / ログインマネージャー
@@ -170,10 +176,10 @@ in
           if var.desktop.displayManager == "regreet" then
             "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.regreet}/bin/regreet"
           else if var.desktop.displayManager == "tuigreet" then
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions"
+            "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions:${config.services.displayManager.sessionData.desktops}/share/xsessions"
           else
             # Fallback
-            "${pkgs.tuigreet}/bin/tuigreet --time --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
+            "${pkgs.tuigreet}/bin/tuigreet --time --asterisks --remember --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions:${config.services.displayManager.sessionData.desktops}/share/xsessions";
         user = "greeter";
       };
     };
@@ -192,11 +198,10 @@ in
     VTNr = 1;
   };
 
-  # Gnome Desktop / Gnomeデスクトップ
-  services.desktopManager.gnome.enable = var.desktop.enableGnome;
-
-  # Niri (Window Manager) / Niri（ウィンドウマネージャー）
-  programs.niri.enable = var.desktop.enableNiri;
+  # SSH AskPassword の競合を解決（Gnome と KDE の両方が有効な場合）
+  # Gnome の seahorse を優先し、KDE 単独の場合は ksshaskpass を使用
+  programs.ssh.askPassword = lib.mkIf (var.desktop.enableGnome && var.desktop.enableKde)
+    (lib.mkForce "${pkgs.gnome-keyring}/libexec/seahorse/ssh-askpass");
 
   # Session Variables / セッション変数
   environment.sessionVariables = {
@@ -205,9 +210,11 @@ in
     XDG_SESSION_TYPE = "wayland";
     XDG_CURRENT_DESKTOP = if var.desktop.enableNiri then "niri"
                           else if var.desktop.enableGnome then "gnome"
+                          else if var.desktop.enableKde then "kde"
                           else "sway"; # Fallback
     XDG_SESSION_DESKTOP = if var.desktop.enableNiri then "niri"
                           else if var.desktop.enableGnome then "gnome"
+                          else if var.desktop.enableKde then "kde"
                           else "sway"; # Fallback
 
     # Input Method（Qt/GTK アプリが IM を使うために必要。KDE で「日本語」選択時に英語のままになるのはこれが未設定のため）

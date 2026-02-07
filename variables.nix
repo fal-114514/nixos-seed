@@ -61,6 +61,9 @@
     # Enable Gnome (Default for beginners) / Gnomeを有効化（初心者向けデフォルト）
     enableGnome = true;
 
+    # Enable KDE Plasma / KDE Plasmaを有効化
+    enableKde = true;
+
     # Enable Niri (Tiling WM) / Niriを有効化（タイル型WM）
     enableNiri = true;
 
