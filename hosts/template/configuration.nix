@@ -88,20 +88,29 @@ in
     };
 
     # Input Method (Japanese) / 入力メソッド（日本語）
-    # GNOME は標準で IBus を使用するため、GNOME 時は IBus + mozc に切り替え（NixOS Wiki 推奨）
-    # それ以外の DE（Niri/KDE 等）では fcitx5 + mozc
-    inputMethod = if var.desktop.enableGnome then {
-      enable = true;
-      type = "ibus";
-      ibus.engines = with pkgs.ibus-engines; [ mozc ];
-    } else {
+    # Use the input method defined in variables.nix
+    # variables.nix で定義された入力メソッドを使用
+    inputMethod = {
       enable = var.inputMethod.enable;
       type = var.inputMethod.type;
-      fcitx5.addons = with pkgs; [
+      ibus.engines = lib.mkIf (var.inputMethod.type == "ibus") (with pkgs.ibus-engines; [ mozc ]);
+      fcitx5.addons = lib.mkIf (var.inputMethod.type == "fcitx5") (with pkgs; [
         fcitx5-mozc
         fcitx5-gtk
-      ];
-      fcitx5.waylandFrontend = true;
+        fcitx5-qt   # KDE/Qt アプリで日本語入力に必須
+      ]);
+      fcitx5.waylandFrontend = (var.inputMethod.type == "fcitx5");
+      # デフォルトを Mozc（日本語）にし、レイアウトを指定のものに
+      fcitx5.settings.inputMethod = lib.mkIf (var.inputMethod.type == "fcitx5") {
+        "GroupOrder" = { "0" = "Default"; };
+        "Groups/0" = {
+          Name = "Default";
+          "Default Layout" = var.inputMethod.fcitx5Layout;
+          DefaultIM = "mozc";
+        };
+        "Groups/0/Items/0" = { Name = "keyboard-${var.inputMethod.fcitx5Layout}"; };
+        "Groups/0/Items/1" = { Name = "mozc"; };
+      };
     };
   };
 
@@ -207,12 +216,12 @@ in
                           else if var.desktop.enableKde then "kde"
                           else "sway"; # Fallback
 
-    # Input Method（GNOME は IBus、それ以外は fcitx5）
-    GTK_IM_MODULE = if var.desktop.enableGnome then "ibus" else "fcitx";
-    QT_IM_MODULE = if var.desktop.enableGnome then "ibus" else "fcitx";
-    XMODIFIERS = if var.desktop.enableGnome then "@im=ibus" else "@im=fcitx";
+    # Input Method（Qt/GTK アプリが IM を使うために必要）
+    GTK_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
+    QT_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
+    XMODIFIERS = if var.inputMethod.type == "fcitx5" then "@im=fcitx" else "@im=ibus";
     # IBus の場合、デーモンアドレスを設定
-    IBUS_DAEMON_ADDRESS = if var.desktop.enableGnome then "unix:path=/run/user/1000/ibus/ibus-daemon" else "";
+    IBUS_DAEMON_ADDRESS = lib.mkIf (var.inputMethod.type == "ibus") "unix:path=/run/user/1000/ibus/ibus-daemon";
   };
 
   # ===========================================================================

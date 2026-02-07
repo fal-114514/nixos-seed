@@ -33,11 +33,16 @@
 
   # GNOME: 日本語入力（IBus Mozc）を入力ソースに追加（必須）
   # 設定しないと「キーボードの入力ソース」に日本語が表示されず変換できない
-  dconf.settings = lib.mkIf (var.desktop.enableGnome && var.inputMethod.type == "ibus") {
-    "org/gnome/desktop/input-sources" = {
+  dconf.settings = lib.mkIf (var.desktop.enableGnome) {
+    "org/gnome/desktop/input-sources" = if var.inputMethod.type == "ibus" then {
       sources = [
         (lib.hm.gvariant.mkTuple [ "xkb" "jp" ])
         (lib.hm.gvariant.mkTuple [ "ibus" "mozc-jp" ])
+      ];
+    } else {
+      # Fcitx5 の場合は xkb のみ（Fcitx5側で制御するため）
+      sources = [
+        (lib.hm.gvariant.mkTuple [ "xkb" var.inputMethod.fcitx5Layout ])
       ];
     };
   };
