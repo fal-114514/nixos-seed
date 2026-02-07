@@ -8,6 +8,11 @@
   # ===========================================================================
 
   imports = [
+    # --- デスクトップ環境 (Desktop Environments) ---
+    ./DE/gnome/nixos.nix
+    ./DE/kde/nixos.nix
+    ./DE/niri/nixos.nix
+
     # --- システム全体の共有モジュールを追加する場合は、以下にパスを追記してください ---
     # ./examples/service-template.nix
   ];

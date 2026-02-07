@@ -1,6 +1,6 @@
 # NixOS Starter Configuration
 
-このリポジトリは、モジュール性とカスタマイズ性を重視したNixOSのスターター設定です。  
+このリポジトリは、モジュール性とカスタマイズ性を重視したNixOSのスターター設定です。
 マルチホスト（複数マシン）対応の構造になっており、各ホストごとの設定を独立して管理できます。
 
 ## 目次 / Table of Contents
@@ -20,7 +20,7 @@
 .
 ├── flake.nix               # エントリーポイント / Entry Point (ホスト定義)
 ├── hosts/                  # ホスト別の設定 / Host-specific configurations
-│   ├── nixos-desktop/      # 個人用環境
+│   ├── desktop/            # 個人用環境
 │   │   ├── variables.nix   # ホスト別変数設定
 │   │   ├── configuration.nix
 │   │   ├── home.nix
@@ -41,8 +41,14 @@
 │   ├── home.nix            # 共有Home Manager設定
 │   ├── DE/                 # デスクトップ環境 (GNOME, KDE, Niri)
 │   │   ├── gnome/
+│   │   │   ├── gnome.nix   # Home Manager設定
+│   │   │   └── nixos.nix   # NixOS設定
 │   │   ├── kde/
+│   │   │   ├── kde.nix
+│   │   │   └── nixos.nix
 │   │   └── niri/
+│   │       ├── niri.nix
+│   │       └── nixos.nix
 │   └── examples/           # モジュールテンプレート例
 │       └── service-template.nix
 └── docs/                   # ドキュメント / Documentation
@@ -70,7 +76,7 @@
 ### クイックスタート (既設ホストの適用)
 
 ```bash
-sudo nixos-rebuild switch --flake .#nixos-desktop
+sudo nixos-rebuild switch --flake .#desktop
 ```
 
 ## 主要なコマンド / Key Commands
