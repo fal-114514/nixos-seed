@@ -99,7 +99,7 @@ in
         fcitx5-gtk
       ]);
       fcitx5.waylandFrontend = (var.inputMethod.type == "fcitx5");
-      # デフォルトを Mozc（日本語）にし、レイアウトを指定のものに
+      # デフォルトを Mozc（日本語）にし、レイアウトを jp に（「日本語」選択時に実際に変換できるようにする）
       fcitx5.settings.inputMethod = lib.mkIf (var.inputMethod.type == "fcitx5") {
         "GroupOrder" = { "0" = "Default"; };
         "Groups/0" = {
@@ -111,6 +111,11 @@ in
         "Groups/0/Items/1" = { Name = "mozc"; };
       };
     };
+  };
+
+  services.xserver.xkb = {
+    layout = var.inputMethod.fcitx5Layout;
+    variant = "";
   };
 
   # Fonts / フォント
@@ -215,10 +220,11 @@ in
                           else if var.desktop.enableKde then "kde"
                           else "sway"; # Fallback
 
-    # Input Method（Qt/GTK アプリが IM を使うために必要）
+    # Input Method（Qt/GTK アプリが IM を使うために必要。KDE で「日本語」選択時に英語のままになるのはこれが未設定のため）
     GTK_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
     QT_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
     XMODIFIERS = if var.inputMethod.type == "fcitx5" then "@im=fcitx" else "@im=ibus";
+
     # IBus の場合、デーモンアドレスを設定
     IBUS_DAEMON_ADDRESS = lib.mkIf (var.inputMethod.type == "ibus") "unix:path=/run/user/1000/ibus/ibus-daemon";
   };
@@ -247,6 +253,9 @@ in
 
     # Dependencies / 依存関係
     adwaita-icon-theme # For ReGreet
+
+    # Input Method Tools / 入力メソッドツール
+    qt6Packages.fcitx5-configtool # For Fcitx5 configuration GUI
   ];
 
   # Flatpak support / Flatpakサポート
