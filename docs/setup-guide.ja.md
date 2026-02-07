@@ -38,6 +38,7 @@ nixos-generate-config --show-hardware-config > hosts/<your-host-name>/hardware-c
 - `user.name`: ユーザー名
 - `system.hostname`: ホスト名（`flake.nix` での定義と合わせる必要があります）
 - `desktop.enableGnome`, `enableNiri` など: デスクトップ環境の選択
+- `inputMethod.type`, `fcitx5Layout`: 入力メソッドの種類と物理キーボードのレイアウト（例: `"fcitx5"`, `"us"`）
 
 ### ステップ C: ホスト固有の設定
 

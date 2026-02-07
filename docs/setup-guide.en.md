@@ -38,6 +38,7 @@ Edit `hosts/<your-host-name>/variables.nix`.
 - `user.name`: Your username
 - `system.hostname`: Hostname (must match the definition in `flake.nix`)
 - `desktop.enableGnome`, `enableNiri`, etc.: Select your desktop environment
+- `inputMethod.type`, `fcitx5Layout`: Input method type and physical keyboard layout (e.g., `"fcitx5"`, `"us"`)
 
 ### Step C: Host-Specific Settings
 
