@@ -30,8 +30,9 @@ in
   # ===========================================================================
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  # Early load graphics driver for VirtualBox / VirtualBox用のグラフィックスドライバを早期読み込み
-  boot.initrd.kernelModules = [ "vmwgfx" ];
+  # Early load graphics driver for VirtualBox (if isVM is true)
+  # VirtualBox用のグラフィックスドライバを早期読み込み（isVMがtrueの場合）
+  boot.initrd.kernelModules = if var.system.isVM then [ "vmwgfx" ] else [ ];
 
   # ===========================================================================
   # Network Configuration / ネットワーク設定
@@ -252,7 +253,7 @@ in
 
   # Virtualization / 仮想化
   virtualisation.libvirtd.enable = true;
-  virtualisation.virtualbox.guest.enable = true;
+  virtualisation.virtualbox.guest.enable = var.system.isVM;
 
   # Binary compatibility / バイナリ互換性
   programs.nix-ld.enable = true;

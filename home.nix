@@ -32,6 +32,22 @@
     # Common configurations can go here / 共通の設定はここに記述
   };
 
+  # GNOME: 日本語入力（IBus Mozc）を入力ソースに追加（必須）
+  # 設定しないと「キーボードの入力ソース」に日本語が表示されず変換できない
+  dconf.settings = lib.mkIf (var.desktop.enableGnome) {
+    "org/gnome/desktop/input-sources" = if var.inputMethod.type == "ibus" then {
+      sources = [
+        (lib.hm.gvariant.mkTuple [ "xkb" "jp" ])
+        (lib.hm.gvariant.mkTuple [ "ibus" "mozc-jp" ])
+      ];
+    } else {
+      # Fcitx5 の場合は xkb のみ（Fcitx5側で制御するため）
+      sources = [
+        (lib.hm.gvariant.mkTuple [ "xkb" var.inputMethod.fcitx5Layout ])
+      ];
+    };
+  };
+
   # ===========================================================================
   # Tool Configurations / ツール設定
   # ===========================================================================
@@ -82,14 +98,14 @@
     gnutar            # Tar utility / Tarユーティリティ
     iproute2          # Network tools / ネットワークツール
     unixtools.ping    # Ping tool / Pingツール
-    
+
     # ---------------------------------------------------------------------------
     # Development / 開発
     # ---------------------------------------------------------------------------
     gcc               # C Compiler / Cコンパイラ
     pkg-config
     vim               # Text Editor / テキストエディタ
-    
+
     # Development Libraries / 開発ライブラリ
     glib
     glib.dev
@@ -104,13 +120,13 @@
     light             # Backlight control / バックライト制御
     brightnessctl     # Brightness control / 輝度制御
     parted            # Partition tool / パーティションツール
-    
+
     # ---------------------------------------------------------------------------
     # Desktop Tools / デスクトップツール
     # ---------------------------------------------------------------------------
     mangohud          # Gaming overlay / ゲーミングオーバーレイ
     xdg-utils
-    
+
     # File Managers / ファイルマネージャー
     nnn               # Terminal FM / ターミナルFM
     pcmanfm           # GUI FM / GUI FM
@@ -120,11 +136,11 @@
     # ---------------------------------------------------------------------------
     vivaldi           # Web Browser / Webブラウザ
     vesktop           # Discord Client / Discordクライアント
-    
+
     # Download Managers / ダウンロードマネージャー
     motrix
     aria2
-    
+
     # Miscellaneous / その他
     plymouth          # Boot splash / ブートスプラッシュ
 

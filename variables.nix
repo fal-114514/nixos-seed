@@ -35,6 +35,11 @@
     # System architecture / システムアーキテクチャ
     architecture = "x86_64-linux";
 
+    # VM identification / VM環境かどうかの識別
+    # Set to true if installing in VirtualBox, VMware, etc.
+    # VirtualBox、VMware等にインストールする場合はtrueに設定してください
+    isVM = true;
+
     # State version (do not change after initial installation)
     # ステートバージョン（初回インストール後は変更しないでください）
     stateVersion = "25.11";
