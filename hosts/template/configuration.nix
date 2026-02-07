@@ -72,6 +72,10 @@ in
   # Time Zone / タイムゾーン
   time.timeZone = var.system.timeZone;
 
+  # Set hardware clock to local time (for dual-boot with Windows)
+  # ハードウェアクロックをローカルタイムに設定（Windowsとのデュアルブート用）
+  time.hardwareClockInLocalTime = true;
+
   # Locale / ロケール
   i18n = {
     defaultLocale = var.system.defaultLocale;

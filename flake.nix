@@ -39,14 +39,14 @@
           system = var.system.architecture;
         in nixpkgs.lib.nixosSystem {
           inherit system;
-          
+
           # Pass arguments to modules / モジュールに引数を渡す
           specialArgs = { inherit inputs var; };
-          
+
           modules = [
             # System Configuration / システム設定
             (dir + "/configuration.nix")
-            
+
             # Flatpak Support / Flatpakサポート
             nix-flatpak.nixosModules.nix-flatpak
 
@@ -75,7 +75,7 @@
       # =========================================================================
       nixosConfigurations = {
         # Desktop Configuration / デスクトップ設定 (Personal / 個人用)
-        nixos-desktop = mkHost "nixos-desktop" ./hosts/nixos-desktop;
+        desktop = mkHost "desktop" ./hosts/desktop;
 
         # Template Configuration / テンプレート設定
         nixos-template = mkHost "nixos-template" ./hosts/template;
