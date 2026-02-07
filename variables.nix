@@ -12,10 +12,10 @@
   user = {
     # Username / ユーザー名
     name = "fal";
-    
+
     # User description (Full Name) / ユーザーの説明（フルネーム）
     description = "Fal";
-    
+
     # Default shell / デフォルトシェル
     # Options: pkgs.bash, pkgs.zsh, pkgs.fish, pkgs.nushell
     shell = "pkgs.nushell";
@@ -31,20 +31,20 @@
   system = {
     # Hostname / ホスト名
     hostname = "nixos-desktop";
-    
+
     # System architecture / システムアーキテクチャ
     architecture = "x86_64-linux";
-    
+
     # State version (do not change after initial installation)
     # ステートバージョン（初回インストール後は変更しないでください）
     stateVersion = "25.11";
-    
+
     # Time zone / タイムゾーン
     timeZone = "Asia/Tokyo";
-    
+
     # Default locale / デフォルトロケール
     defaultLocale = "en_US.UTF-8";
-    
+
     # Additional locales (Date, Currency, etc.) / 追加ロケール（日付、通貨など）
     extraLocale = "ja_JP.UTF-8";
   };
@@ -73,7 +73,7 @@
   network = {
     # Enable NetworkManager / NetworkManagerを有効化
     enableNetworkManager = true;
-    
+
     # Enable SSH / SSHを有効化
     enableSSH = true;
 
@@ -87,6 +87,12 @@
   inputMethod = {
     # Enable Japanese Input (Mozc) / 日本語入力（Mozc）を有効化
     enable = true;
+
+    # Input Method Type / 入力メソッドの種類 ("fcitx5" or "ibus")
     type = "fcitx5";
+
+    # Keyboard Layout for Fcitx5 / Fcitx5用のキーボードレイアウト
+    # Options: "us", "jp", etc. (Your physical keyboard layout)
+    fcitx5Layout = "us";
   };
 }

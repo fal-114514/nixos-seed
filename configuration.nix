@@ -5,12 +5,12 @@
 # これはメインのシステム設定ファイルです。
 # =============================================================================
 
-{ config, pkgs, var, ... }:
+{ config, pkgs, var, lib, ... }:
 
 let
   # Helper function to get shell package from string
   # 文字列からシェルパッケージを取得するヘルパー関数
-  getShell = shellStr: 
+  getShell = shellStr:
     if shellStr == "pkgs.bash" then pkgs.bash
     else if shellStr == "pkgs.zsh" then pkgs.zsh
     else if shellStr == "pkgs.fish" then pkgs.fish
@@ -36,7 +36,7 @@ in
   # ===========================================================================
   # Network Configuration / ネットワーク設定
   # ===========================================================================
-  
+
   # Hostname / ホスト名
   networking.hostName = var.system.hostname;
 
@@ -86,13 +86,34 @@ in
     };
 
     # Input Method (Japanese) / 入力メソッド（日本語）
+    # Use the input method defined in variables.nix
+    # variables.nix で定義された入力メソッドを使用
     inputMethod = {
       enable = var.inputMethod.enable;
       type = var.inputMethod.type;
-      fcitx5.addons = with pkgs; [
+      ibus.engines = lib.mkIf (var.inputMethod.type == "ibus") (with pkgs.ibus-engines; [ mozc ]);
+      fcitx5.addons = lib.mkIf (var.inputMethod.type == "fcitx5") (with pkgs; [
         fcitx5-mozc
-      ];
+        fcitx5-gtk
+      ]);
+      fcitx5.waylandFrontend = (var.inputMethod.type == "fcitx5");
+      # デフォルトを Mozc（日本語）にし、レイアウトを jp に（「日本語」選択時に実際に変換できるようにする）
+      fcitx5.settings.inputMethod = lib.mkIf (var.inputMethod.type == "fcitx5") {
+        "GroupOrder" = { "0" = "Default"; };
+        "Groups/0" = {
+          Name = "Default";
+          "Default Layout" = var.inputMethod.fcitx5Layout;
+          DefaultIM = "mozc";
+        };
+        "Groups/0/Items/0" = { Name = "keyboard-${var.inputMethod.fcitx5Layout}"; };
+        "Groups/0/Items/1" = { Name = "mozc"; };
+      };
     };
+  };
+
+  services.xserver.xkb = {
+    layout = var.inputMethod.fcitx5Layout;
+    variant = "";
   };
 
   # Fonts / フォント
@@ -117,11 +138,11 @@ in
   # ===========================================================================
   # Desktop Environment / デスクトップ環境
   # ===========================================================================
-  
+
   # Enable XServer (Required for Gnome) / XServerを有効化（Gnomeに必要）
   # Enable XServer (Required for Gnome, etc.) / XServerを有効化（Gnome等に必要）
   services.xserver.enable = var.desktop.enableGnome;
-  
+
   # ---------------------------------------------------------------------------
   # Login Manager / ログインマネージャー
   # ---------------------------------------------------------------------------
@@ -137,14 +158,14 @@ in
 
   # ReGreet (GTK based Greeter) / ReGreet（GTKベースのグリーター）
   programs.regreet.enable = (var.desktop.displayManager == "regreet");
-  
-  # Greetd Configuration (for Tuigreet and ReGreet) 
+
+  # Greetd Configuration (for Tuigreet and ReGreet)
   # Greetd設定（TuigreetおよびReGreet用）
   services.greetd = {
     enable = (var.desktop.displayManager == "tuigreet" || var.desktop.displayManager == "regreet");
     settings = {
       default_session = {
-        command = 
+        command =
           if var.desktop.displayManager == "regreet" then
             "${pkgs.dbus}/bin/dbus-run-session ${pkgs.cage}/bin/cage -s -- ${pkgs.greetd.regreet}/bin/regreet"
           else if var.desktop.displayManager == "tuigreet" then
@@ -178,15 +199,23 @@ in
 
   # Session Variables / セッション変数
   environment.sessionVariables = {
-    # Wayland / Niri settings
+    # Wayland / DE specific settings
+    # 選択されたデスクトップ環境に応じて動的に設定
     XDG_SESSION_TYPE = "wayland";
-    XDG_CURRENT_DESKTOP = "niri";
-    XDG_SESSION_DESKTOP = "niri";
-    
-    # Input Method
-    GTK_IM_MODULE = "fcitx";
-    QT_IM_MODULE = "fcitx";
-    XMODIFIERS = "@im=fcitx";
+    XDG_CURRENT_DESKTOP = if var.desktop.enableNiri then "niri"
+                          else if var.desktop.enableGnome then "gnome"
+                          else "sway"; # Fallback
+    XDG_SESSION_DESKTOP = if var.desktop.enableNiri then "niri"
+                          else if var.desktop.enableGnome then "gnome"
+                          else "sway"; # Fallback
+
+    # Input Method（Qt/GTK アプリが IM を使うために必要。KDE で「日本語」選択時に英語のままになるのはこれが未設定のため）
+    GTK_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
+    QT_IM_MODULE = if var.inputMethod.type == "ibus" then "ibus" else "fcitx";
+    XMODIFIERS = if var.inputMethod.type == "fcitx5" then "@im=fcitx" else "@im=ibus";
+
+    # IBus の場合、デーモンアドレスを設定
+    IBUS_DAEMON_ADDRESS = lib.mkIf (var.inputMethod.type == "ibus") "unix:path=/run/user/1000/ibus/ibus-daemon";
   };
 
   # ===========================================================================
@@ -202,7 +231,7 @@ in
   # ===========================================================================
   # System Packages / システムパッケージ
   # ===========================================================================
-  
+
   # Allow unfree packages / 非フリーパッケージを許可
   nixpkgs.config.allowUnfree = true;
 
@@ -210,9 +239,12 @@ in
     # Core Tools / コアツール
     git
     vim
-    
+
     # Dependencies / 依存関係
     adwaita-icon-theme # For ReGreet
+
+    # Input Method Tools / 入力メソッドツール
+    qt6Packages.fcitx5-configtool # For Fcitx5 configuration GUI
   ];
 
   # Flatpak support / Flatpakサポート
@@ -229,7 +261,7 @@ in
   # System State / システム状態
   # ===========================================================================
   system.stateVersion = var.system.stateVersion;
-  
+
   # Experimental features / 実験的機能
   # Nix settings / Nix設定
   nix = {
