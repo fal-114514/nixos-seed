@@ -72,11 +72,6 @@ in
   # Time Zone / タイムゾーン
   time.timeZone = var.system.timeZone;
 
-  services.xserver.xkb = {
-    layout = "us";
-    variant = "";
-  };
-
   # Locale / ロケール
   i18n = {
     defaultLocale = var.system.defaultLocale;
@@ -116,6 +111,11 @@ in
         "Groups/0/Items/1" = { Name = "mozc"; };
       };
     };
+  };
+
+  services.xserver.xkb = {
+    layout = var.inputMethod.fcitx5Layout;
+    variant = "";
   };
 
   # Fonts / フォント
