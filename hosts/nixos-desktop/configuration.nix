@@ -102,7 +102,6 @@ in
       fcitx5.addons = lib.mkIf (var.inputMethod.type == "fcitx5") (with pkgs; [
         fcitx5-mozc
         fcitx5-gtk
-        fcitx5-qt   # KDE/Qt アプリで日本語入力に必須（ないと Ctrl+Space で「日本語」表示でも英語のままになる）
       ]);
       fcitx5.waylandFrontend = (var.inputMethod.type == "fcitx5");
       # デフォルトを Mozc（日本語）にし、レイアウトを jp に（「日本語」選択時に実際に変換できるようにする）
