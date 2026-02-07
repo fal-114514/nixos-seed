@@ -196,19 +196,10 @@ in
     VTNr = 1;
   };
 
-  # Gnome Desktop / Gnomeデスクトップ
-  services.desktopManager.gnome.enable = var.desktop.enableGnome;
-
-  # KDE Plasma Desktop / KDE Plasmaデスクトップ
-  services.desktopManager.plasma6.enable = var.desktop.enableKde;
-
   # SSH AskPassword の競合を解決（Gnome と KDE の両方が有効な場合）
   # Gnome の seahorse を優先し、KDE 単独の場合は ksshaskpass を使用
   programs.ssh.askPassword = lib.mkIf (var.desktop.enableGnome && var.desktop.enableKde)
     (lib.mkForce "${pkgs.gnome-keyring}/libexec/seahorse/ssh-askpass");
-
-  # Niri (Window Manager) / Niri（ウィンドウマネージャー）
-  programs.niri.enable = var.desktop.enableNiri;
 
   # Session Variables / セッション変数
   environment.sessionVariables = {

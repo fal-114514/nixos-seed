@@ -20,6 +20,14 @@ graph TD
 
     Modules --> DE["DE/ (Desktop Environments)"]
     Modules --> ModDefault["default.nix (Module Aggregator)"]
+    Modules --> ModHome["home.nix (Home Module Aggregator)"]
+
+    DE --> DE_Gnome["gnome/"]
+    DE --> DE_Kde["kde/"]
+    DE --> DE_Niri["niri/"]
+
+    DE_Gnome --> Gnome_NixOS["nixos.nix (NixOS Config)"]
+    DE_Gnome --> Gnome_HM["gnome.nix (HM Config)"]
 
     HostModules --> Modules
 ```
@@ -53,20 +61,26 @@ sequenceDiagram
     participant V as variables.nix
     participant N as NixOS Module (configuration.nix)
     participant H as Home Manager (home.nix)
+    participant M as Shared Module (modules/)
 
     F->>V: import
     V-->>F: return var (Attribute Set)
     F->>N: lib.nixosSystem with inputs and var
+    N->>M: imports (shared logic)
     N->>H: home-manager.extraSpecialArgs with inputs and var
+    H->>M: imports (shared HM logic)
 ```
 
 - **`specialArgs`**: すべてのモジュール引数に `inputs` (Flake inputs) と `var` (Custom variables) を追加。これにより、各モジュールで `import` を記述することなく、グローバルな状態にアクセス可能。
 - **Scoped Variables**: Home Manager 統合において、`home-manager.users.${var.user.name}` のように、`var` に基づいた動的な属性パス定義を実施。
 
-### 2.3 モジュール結合と条件付き評価
+### 2.3 モジュール結合と条件付き評価 (NixOS / Home Manager 分離)
 
-- **静的な `imports`**: `modules/default.nix`ですべてのモジュールパスをリストアップ。これにより、依存グラフがビルド前に決定される。
-- **動的な `mkIf`**: 各モジュール（DE 等）内部で `lib.mkIf var.desktop.enable{Env}` を使用。Nix の遅延評価（Lazy Evaluation）特性を活かし、フラグが `false` のモジュールはビルド対象から除外される。
+デスクトップ環境（DE）の設定は、システムレベル（NixOS）とユーザーレベル（Home Manager）で分離され、`modules/DE/` 配下で一元管理されます。
+
+- **NixOS (`nixos.nix`)**: ディスプレイドライバー、サービス有効化、システムパッケージ。
+- **Home Manager (`*.nix`)**: ユーザー固有のパッケージ、設定ファイルのリンク（dotfiles）、各 DE の内部設定。
+- **動的な集約**: `modules/default.nix` (NixOS 側) および `modules/home.nix` (HM 側) がこれらをインポートし、`variables.nix` のフラグに基づいて自動的に評価されます。
 
 ---
 
@@ -77,13 +91,13 @@ sequenceDiagram
 1.  **ディレクトリ作成**: `hosts/template` を `hosts/{hostname}` にコピー。
 2.  **変数の調整**: `hosts/{hostname}/variables.nix` を開き、`hostname`, `user.name`, `architecture` 等を設定。
 3.  **ハードウェア定義**: インストール先で `nixos-generate-config` を実行し、`hardware-configuration.nix` を配置。
-4.  **Flake 登録**: `flake.nix` の `outputs.nixosConfigurations` に `mkHost` 呼び出しを追加。
+4.  **Flake 登録**: `flake.nix` の `outputs.nixosConfigurations` に `mkHost` 呼び出しを追加（ホスト名指定に注意）。
 
 ### 4.2 共有モジュールの追加
 
 1.  **モジュール作成**: `modules/` 配下に機能単位のディレクトリまたはファイルを作成（例: `modules/services/docker.nix`）。
 2.  **インターフェイス定義**: `lib.mkIf var.{service}.enable` を使用して条件付き評価を実装。
-3.  **集約**: `modules/default.nix` の `imports` に新しいモジュールパスを追加。これにより、全ホストからアクセス可能になる。
+3.  **集約**: `modules/default.nix`（または `home.nix`）の `imports` に新しいモジュールパスを追加。これにより、全ホストからアクセス可能になる。
 
 ---
 
@@ -97,7 +111,11 @@ sequenceDiagram
 {
   user = { name = "fal"; ... };
   system = { architecture = "x86_64-linux"; ... };
-  desktop = { enableGnome = true; ... };
+  desktop = {
+    enableGnome = true;
+    gnomeConfigPath = ./config/DE/gnome/default.nix;
+    ...
+  };
 }
 ```
 
@@ -122,9 +140,9 @@ sequenceDiagram
 
 本構成では、以下のルールに基づいて設定を分離します。
 
-- **NixOS (configuration.nix)**: ハードウェア、ドライバー、システムサービス（Docker, SSH）、ユーザー管理、フォント。
-- **Home Manager (home.nix)**: アプリケーション設定（Dotfiles）、ユーザーパッケージ（Vivaldi, CLIツール）、デスクトップ環境のテーマ設定。
+- **NixOS (configuration.nix / nixos.nix)**: ハードウェア、ドライバー、システムサービス（Docker, SSH）、ユーザー管理、フォント、デスクトップ環境の基本サービス有効化。
+- **Home Manager (home.nix / DE-specific nix)**: アプリケーション設定（Dotfiles）、ユーザーパッケージ（Vivaldi, CLI ツール）、デスクトップ環境のテーマ設定や拡張機能。
 
 ### 6.2 パス解決の原則
 
-Home Manager モジュール（`home.nix`）も `var` にアクセス可能であるため、`var.desktop.gnomeConfigPath` のように `variables.nix` で定義されたリソースパスを直接参照し、一貫性を保ちます。
+Home Manager モジュールも `var` にアクセス可能であるため、`var.desktop.gnomeConfigPath` のように `variables.nix` で定義されたリソースパスを直接参照し、一意性を担保します。
